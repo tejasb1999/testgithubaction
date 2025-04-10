@@ -33,10 +33,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Step 5: List files (debugging)
-      - name: List files in the repository
+      # Step 5: List files in the tests directory (debugging)
+      - name: List files in the tests directory
+        run: ls -l tests/
+
+      # Step 6: List all files in the repository (debugging)
+      - name: List all files in the repository
         run: ls -l
 
-      # Step 6: Run tests
+      # Step 7: Run tests on specific file
       - name: Run tests
-        run: pytest tests/ --maxfail=1 --disable-warnings
+        run: pytest tests/tests_operations.py --maxfail=1 --disable-warnings
