@@ -68,7 +68,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .  # Set the context to the root of the repository
-          file: ./src/Dockerfile  # Specify Dockerfile location inside the 'src/' directory
+          file: ./src/dockerFile  # Specify Dockerfile location inside the 'src/' directory
           push: true
           tags: sophtimizec/github-actions-demo-app:latest
 
