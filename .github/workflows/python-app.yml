@@ -87,6 +87,11 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Add a manual docker login to ensure proper authentication
+      - name: Manually login to Docker (for debugging)
+        run: |
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
   
       # Set up SSH key for deployment
       - name: Set up SSH key for deployment
