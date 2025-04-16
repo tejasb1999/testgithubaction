@@ -42,10 +42,6 @@ jobs:
       - name: Run tests
         run: pytest tests/tests_operations.py --maxfail=1 --disable-warnings
 
-      # Step 7: List files in the 'src' directory (debugging)
-      - name: List files in the 'src' directory (debugging)
-        run: ls -l ./src
-
       # Step 8: Build and Push Docker Image
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -58,12 +54,21 @@ jobs:
         
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        
+
+      # Debug Dockerfile path and content
+      - name: Debug Dockerfile Path
+        run: |
+          echo "Listing all files in the root directory"
+          ls -l
+          echo "Listing files in the 'src' directory"
+          ls -l ./src
+
+      # Step 9: Build and push
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: .  # Set the context to the root of the repository
           file: ./src/Dockerfile  # Specify Dockerfile location inside the 'src/' directory
           push: true
-          tags: user/app:latest
+          tags: sophtimizec/github-actions-demo-app:latest
 
