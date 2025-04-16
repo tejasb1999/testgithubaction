@@ -83,11 +83,11 @@ jobs:
       # Set up SSH key for deployment
       - name: Set up SSH key for deployment
         run: |
-          mkdir -p ~/.ssh  # Create the .ssh directory if it doesn't exist
+          mkdir -p ~/.ssh  # Ensure the .ssh directory exists
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa  # Correct permissions for the private key
+          eval "$(ssh-agent -s)"  # Start the ssh-agent
+          ssh-add ~/.ssh/id_rsa  # Add the SSH private key to the agent
 
   
       # Deploy Docker container to Kamatera server
