@@ -92,7 +92,7 @@ jobs:
       - name: Manually login to Docker (for debugging)
         run: |
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-  
+
       # Set up SSH key for deployment
       - name: Set up SSH key for deployment
         run: |
@@ -101,26 +101,28 @@ jobs:
           chmod 600 ~/.ssh/id_rsa  # Correct permissions for the private key
           eval "$(ssh-agent -s)"  # Start the ssh-agent
           ssh-add ~/.ssh/id_rsa  # Add the SSH private key to the agent
-  
+
+      # Clone the repository into Github_Actions_Demo on Kamatera server
+      - name: Clone repository to Kamatera server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.KAMATERA_USERNAME }}@${{ secrets.KAMATERA_SERVER_IP }} <<EOF
+            cd ~
+            mkdir -p Github_Actions_Demo  # Create the directory if it doesn't exist
+            cd Github_Actions_Demo
+            git clone https://github.com/${{ github.repository }} .
+          EOF
+
       # Deploy Docker container to Kamatera server
       - name: Deploy Docker container to Kamatera
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.KAMATERA_USERNAME }}@${{ secrets.KAMATERA_SERVER_IP }} <<EOF
-            # Navigate to the home directory and create the folder if not exist
-            cd ~
-            mkdir -p Github_Actions_Demo
-  
-            # Change directory to 'Github_Actions_Demo' folder
-            cd Github_Actions_Demo
-  
-            # Pull the latest image from Docker Hub
+            cd ~/Github_Actions_Demo
             docker pull sophtimizec/github-actions-demo-app:latest
-  
+
             # Stop and remove the old container (if it exists)
-            docker stop my-app || true
-            docker rm my-app || true
-  
+            docker ps -a -q --filter "name=my-app" | grep -q . && docker stop my-app && docker rm my-app || echo "Container my-app not found"
+
             # Run the new container and mount it to the specific folder
-            docker run -d --name my-app -p 80:80 \
-              -v $(pwd):/app sophtimizec/github-actions-demo-app:latest
+            docker run -d --name my-app -p 80:80 -v $(pwd):/app sophtimizec/github-actions-demo-app:latest
           EOF
+
