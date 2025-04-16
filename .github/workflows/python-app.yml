@@ -79,31 +79,33 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      # Set up SSH private key for deployment
-      - name: Set up SSH key
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      # Deploy Docker container to Kamatera and manage the 'Github_Actions_Demo' folder
+  
+      # Set up SSH key for deployment
+      - name: Set up SSH key for deployment
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_rsa
+  
+      # Deploy Docker container to Kamatera server
       - name: Deploy Docker container to Kamatera
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.KAMATERA_USERNAME }}@${{ secrets.KAMATERA_SERVER_IP }} <<EOF
-            # Navigate to home directory and create the folder if not exist
+            # Navigate to the home directory and create the folder if not exist
             cd ~
             mkdir -p Github_Actions_Demo
-
+  
             # Change directory to 'Github_Actions_Demo' folder
             cd Github_Actions_Demo
-
+  
             # Pull the latest image from Docker Hub
             docker pull sophtimizec/github-actions-demo-app:latest
-
+  
             # Stop and remove the old container (if it exists)
             docker stop my-app || true
             docker rm my-app || true
-
+  
             # Run the new container and mount it to the specific folder
             docker run -d --name my-app -p 80:80 \
               -v $(pwd):/app sophtimizec/github-actions-demo-app:latest
